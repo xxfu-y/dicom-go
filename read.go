@@ -122,6 +122,14 @@ func readValue(r dicomio.Reader, t tag.Tag, vr string, vl uint32, isImplicit boo
 
 }
 
+func readValueForce(r dicomio.Reader, t tag.Tag, vr string, vl uint32, isImplicit bool, d *Dataset, fc chan<- *frame.Frame) (Value, error) {
+	v, err := readValue(r, t, vr, vl, isImplicit, d, fc)
+	if err != nil {
+		return nil, nil
+	}
+	return v, nil
+}
+
 func readPixelData(r dicomio.Reader, t tag.Tag, vr string, vl uint32, d *Dataset, fc chan<- *frame.Frame) (Value,
 	error) {
 	if vl == tag.VLUndefinedLength {
@@ -478,6 +486,10 @@ func readFloat(r dicomio.Reader, t tag.Tag, vr string, vl uint32) (Value, error)
 	for !r.IsLimitExhausted() {
 		switch vr {
 		case vrraw.FloatingPointSingle:
+			if vl < 4 {
+				r.PopLimit()
+				return nil, errorUnableToParseFloat
+			}
 			val, err := r.ReadFloat32()
 			if err != nil {
 				return nil, err
@@ -492,6 +504,10 @@ func readFloat(r dicomio.Reader, t tag.Tag, vr string, vl uint32) (Value, error)
 			retVal.value = append(retVal.value, pval)
 			break
 		case vrraw.FloatingPointDouble:
+			if vl < 8 {
+				r.PopLimit()
+				return nil, errorUnableToParseFloat
+			}
 			val, err := r.ReadFloat64()
 			if err != nil {
 				return nil, err
@@ -597,7 +613,7 @@ func readElement(r dicomio.Reader, d *Dataset, fc chan<- *frame.Frame) (*Element
 	}
 	debug.Logf("readElement: vl: %d", vl)
 
-	val, err := readValue(r, *t, vr, vl, readImplicit, d, fc)
+	val, err := readValueForce(r, *t, vr, vl, readImplicit, d, fc)
 	if err != nil {
 		log.Println("error reading value ", err)
 		return nil, err

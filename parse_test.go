@@ -145,3 +145,12 @@ func TestParseFileWithULSQ(t *testing.T) {
 		t.Errorf("cannot parse dicom file with ULSQ")
 	}
 }
+
+func TestForceParse(t *testing.T) {
+	dataset, err := dicom.ParseFile("testdata/image00001.dcm", nil)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println(dataset)
+	}
+}
