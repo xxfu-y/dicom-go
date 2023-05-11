@@ -238,6 +238,8 @@ func writeElement(w dicomio.Writer, elem *Element, opts writeOptSet) error {
 		if elem.ValueLength == tag.VLUndefinedLength {
 			length = tag.VLUndefinedLength
 		}
+	} else {
+		length = 0
 	}
 
 	err = encodeElementHeader(w, elem.Tag, vr, length)
