@@ -239,7 +239,12 @@ func writeElement(w dicomio.Writer, elem *Element, opts writeOptSet) error {
 			length = tag.VLUndefinedLength
 		}
 	} else {
-		length = 0
+		// judge if this elem is an item of SQ
+		if elem.Tag != tag.Item && elem.Tag != tag.ItemDelimitationItem {
+			// if here, mean there is an elem with nil value and NOT an item of SQ.
+			// to make the vl match value, set it zero
+			length = 0
+		}
 	}
 
 	err = encodeElementHeader(w, elem.Tag, vr, length)
