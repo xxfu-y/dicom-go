@@ -216,6 +216,17 @@ func writeElement(w dicomio.Writer, elem *Element, opts writeOptSet) error {
 	if err != nil {
 		return err
 	}
+	vrkind := tag.GetVRKind(elem.Tag, vr)
+	lenNum := elem.ValueLength
+	switch vrkind {
+	case tag.VRFloat32List:
+		lenNum = 4
+	case tag.VRFloat64List:
+		lenNum = 8
+	}
+	if lenNum != elem.ValueLength {
+		elem.ValueLength = lenNum
+	}
 
 	if !opts.skipValueTypeVerification && elem.Value != nil {
 		err := verifyValueType(elem.Tag, elem.Value, vr)
