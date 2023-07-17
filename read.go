@@ -487,8 +487,19 @@ func readFloat(r dicomio.Reader, t tag.Tag, vr string, vl uint32) (Value, error)
 		switch vr {
 		case vrraw.FloatingPointSingle:
 			if vl < 4 {
-				r.PopLimit()
-				return nil, errorUnableToParseFloat
+				//r.PopLimit()
+				//return nil, errorUnableToParseFloat
+				val, err := r.ReadString(vl)
+				if err != nil {
+					return nil, err
+				}
+				val = strings.TrimSpace(val)
+				num, err := strconv.ParseFloat(val, 32)
+				if err != nil {
+					return nil, err
+				}
+				retVal.value = append(retVal.value, num)
+				break
 			}
 			val, err := r.ReadFloat32()
 			if err != nil {
@@ -505,8 +516,19 @@ func readFloat(r dicomio.Reader, t tag.Tag, vr string, vl uint32) (Value, error)
 			break
 		case vrraw.FloatingPointDouble:
 			if vl < 8 {
-				r.PopLimit()
-				return nil, errorUnableToParseFloat
+				//r.PopLimit()
+				//return nil, errorUnableToParseFloat
+				val, err := r.ReadString(vl)
+				if err != nil {
+					return nil, err
+				}
+				val = strings.TrimSpace(val)
+				num, err := strconv.ParseFloat(val, 64)
+				if err != nil {
+					return nil, err
+				}
+				retVal.value = append(retVal.value, num)
+				break
 			}
 			val, err := r.ReadFloat64()
 			if err != nil {
